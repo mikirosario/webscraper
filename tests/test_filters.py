@@ -18,12 +18,10 @@ def test_filter_by_title_length_with_mixed_list():
     filtered_entries = filter_by_title_length(entries, 5)
 
     # Assert
-        # Check if the returned value is a list
-    assert isinstance(filtered_entries, list), f"Expected a list, but got {type(filtered_entries)}"
-    for entry in filtered_entries:
-        # Check that each value in the list is a HackerNewsEntry
-        assert isinstance(entry, HackerNewsEntry), f"Expected a HackerNewsEntry object, but got {type(entry)}"
+        # Check that filtered_entries is a list of HackerNewsEntry objects
+    assert _validate_hnentry_list_type(filtered_entries), "Expected a list of HackerNewsEntry objects."
         # Check that each HackerNewsEntry in the list has a title with more than 5 words
+    for entry in filtered_entries:
         assert len(entry.title.split()) > 5, f"Title '{entry.title}' does not exceed 5 words."
         # Check that 2 entries are returned
     assert len(filtered_entries) == 2, f"Expected 2 entries, but got {len(filtered_entries)}"
@@ -125,10 +123,8 @@ def test_sort_by_comments_basic():
     sorted_entries = sort_by_comments(entries)
 
     # Assert
-        # Check that each value in the list is a HackerNewsEntry
-    for entry in sorted_entries:
-        assert isinstance(entry, HackerNewsEntry), f"Expected a HackerNewsEntry object, but got {type(entry)}"
-        # Check that each entry's comment_count matches the expected order
+        # Check that sorted_entries is a list of HackerNewsEntry objects
+    assert _validate_hnentry_list_type(sorted_entries), "Expected a list of HackerNewsEntry objects."
     assert [entry.comment_count for entry in sorted_entries] == expected_comment_count_order
 
 def test_sort_by_comments_empty_list():
@@ -177,9 +173,85 @@ def test_sort_by_comments_invalid_input():
     with pytest.raises(TypeError):
         sort_by_comments(entries_list_strs)
 
-
-def test_sort_by_points():
-    # Create some mock entries
-    entries = [...]
+def test_sort_by_points_basic():
+    """
+    Test sort_by_points with a valid list of entries.
+    The function should return a list sorted by the number of points in descending order.
+    """
+    # Arrange
+    entries = [
+        HackerNewsEntry("Title A", 1, 10, 100),
+        HackerNewsEntry("Title B", 2, 20, 300),
+        HackerNewsEntry("Title C", 3, 30, 200),
+    ]
+    expected_points_order = [300, 200, 100]
+    
+    # Act
     sorted_entries = sort_by_points(entries)
-    # Add assertions based on expected order
+
+    # Assert
+        # Check that sorted_entries is a list of HackerNewsEntry objects
+    assert _validate_hnentry_list_type(sorted_entries), "Expected a list of HackerNewsEntry objects."
+        # Check that each entry's comment_count matches the expected order
+    assert [entry.points for entry in sorted_entries] == expected_points_order
+
+def test_sort_by_points_empty_list():
+    """
+    Test sort_by_points with an empty list.
+    The function should return an empty list.
+    """
+    # Arrange
+    entries = []
+
+    # Act
+    sorted_entries = sort_by_points(entries)
+
+    # Assert
+    assert sorted_entries == []
+
+def test_sort_by_points_tiebreaker():
+    """
+    Test sort_by_points with entries having the same points.
+    The function should maintain the original order of the entries (stable sort).
+    """
+    # Arrange
+    entries = [
+        HackerNewsEntry("Title A", 1, 10, 100),
+        HackerNewsEntry("Title B", 2, 20, 100),
+    ]
+    
+    # Act
+    sorted_entries = sort_by_points(entries)
+
+    # Assert
+    assert [entry.title for entry in sorted_entries] == ["Title A", "Title B"]
+
+def test_sort_by_points_invalid_input():
+    """
+    Test sort_by_points with invalid input.
+    The function should raise a TypeError.
+    """
+    # Arrange
+    entries_not_list = "not a list of HackerNewsEntry"
+    entries_list_strs = ["not a HackerNewsEntry", "also not a HackerNewsEntry"]
+
+    # Act and Assert
+    with pytest.raises(TypeError):
+        sort_by_points(entries_not_list)
+    with pytest.raises(TypeError):
+        sort_by_points(entries_list_strs)
+
+# Auxiliary Functions
+def _validate_hnentry_list_type(entries: any) -> bool:
+    """
+    Validate if the given variable 'entries' is a list of HackerNewsEntry objects.
+
+    Args:
+        entries (Any): The variable to validate.
+
+    Returns:
+        bool: True if entries is a list of HackerNewsEntry objects, False otherwise.
+    """
+    if not isinstance(entries, list):
+        return False
+    return all(isinstance(entry, HackerNewsEntry) for entry in entries)
