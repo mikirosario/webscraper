@@ -41,7 +41,7 @@ def fetch_hn_entries(max_entries: int) -> list[HackerNewsEntry]:
         list[HackerNewsEntry]: A list of HackerNewsEntry objects.
     """
     # Fetch the HTML content
-    response = requests.get(HN_URL)
+    response = requests.get(HN_URL, HN_HTTP_REQUEST_HEADER)
     response.raise_for_status()  # Raise an exception for HTTP errors
 
     # Parse the HTML content using BeautifulSoup
