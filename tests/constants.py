@@ -1,5 +1,5 @@
 from pathlib import Path
-from src.models.models import HackerNewsEntry
+from models.models import HackerNewsEntry
 
 # Platform-indifferent path to the mock yCombinator html file from the local directory
 MOCK_HTML_FILE_RELATIVE_PATH = Path("mocks") / "hn_sample.html"

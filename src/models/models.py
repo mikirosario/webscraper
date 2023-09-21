@@ -1,15 +1,15 @@
-from src.utils.log_config import setup_logger
+from utils.log_config import setup_logger
 
 logger = setup_logger(__name__)
 
 class HackerNewsEntry:
     # Private variables
     _default_str_val = 'BAD STRING'
-    _default_int_val = -1
-    _title: str = _default_str_val
-    _order_num: int = _default_int_val
-    _comment_count: int = _default_int_val
-    _points: int = _default_int_val
+    _default_int_val = 0
+    _title: str
+    _order_num: int
+    _comment_count: int
+    _points: int
 
     # Class constructor
     def __init__(self, title: str, order_num: int, comment_count: int, points: int):
@@ -76,4 +76,3 @@ class HackerNewsEntry:
             logger.warning(f"{value_name} number must be a non-negative integer.")
             return self._default_int_val
         return value
-    
