@@ -1,8 +1,8 @@
 import requests
 from typing import List
 from bs4 import BeautifulSoup
-from src.models.models import HackerNewsEntry
-from src.constants import *
+from models.models import HackerNewsEntry
+from constants import *
 
 def _extract_numeric_chars(s: str) -> str:
     return ''.join(filter(str.isdigit, s))

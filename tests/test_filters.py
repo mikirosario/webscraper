@@ -1,6 +1,6 @@
 import pytest
-from src.utils.filters import *
-from src.models.models import HackerNewsEntry
+from utils.filters import *
+from models.models import HackerNewsEntry
 from tests.utils import validate_hnentry_list_type
 
 def test_filter_by_title_length_with_mixed_list():

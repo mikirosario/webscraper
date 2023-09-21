@@ -1,7 +1,7 @@
 import os
 from unittest.mock import patch
 from pathlib import Path
-from src.utils.scraper import *
+from utils.scraper import *
 from tests.constants import *
 from tests.utils import validate_hnentry_list_type
 

@@ -1,6 +1,6 @@
 import logging
 from logging.handlers import RotatingFileHandler
-from src.constants import LOG_FILE_NAME, LOG_FILE_MAX_BYTES, LOG_FILE_MAX_NUM
+from constants import LOG_FILE_NAME, LOG_FILE_MAX_BYTES, LOG_FILE_MAX_NUM
 
 def setup_logger(name):
     # Set up the logger

@@ -1,4 +1,4 @@
-from src.models.models import HackerNewsEntry
+from models.models import HackerNewsEntry
 
 # Auxiliary Functions
 def validate_hnentry_list_type(entries: any) -> bool:
