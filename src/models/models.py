@@ -13,10 +13,10 @@ class HackerNewsEntry:
 
     # Class constructor
     def __init__(self, title: str, order_num: int, comment_count: int, points: int):
-            self._title = title
-            self._order_num = order_num
-            self._comment_count = comment_count
-            self._points = points
+            self.title = title
+            self.order_num = order_num
+            self.comment_count = comment_count
+            self.points = points
 
     # Equality operator override
     def __eq__(self, other):
