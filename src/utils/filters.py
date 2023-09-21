@@ -1,5 +1,5 @@
 from typing import List
-from models.models import HackerNewsEntry
+from src.models.models import HackerNewsEntry
 
 def filter_by_title_length(entries: List[HackerNewsEntry], word_limit: int) -> List[HackerNewsEntry]:
     """
