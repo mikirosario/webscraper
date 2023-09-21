@@ -1,3 +1,8 @@
+# HTTP request header
+HN_HTTP_REQUEST_HEADER = {
+    "User-Agent": "webscraper (+https://github.com/mikirosario/webscraper)"
+    }
+
 # URL for the YCombinator news page
 HN_URL = "https://news.ycombinator.com/news"
 
