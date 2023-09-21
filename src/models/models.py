@@ -67,12 +67,12 @@ class HackerNewsEntry:
     # Validation methods
     def _validate_str(self, value: str, value_name: str) -> str:
         if not isinstance(value, str):
-            logger.warning(f"{value_name} must be a string.")
+            logger.warning(f"order_num {self.order_num} received invalid {value_name} value {value}.")
             return self._default_str_val
         return value
 
     def _validate_int(self, value: int, value_name: str) -> int:
         if not isinstance(value, int) or value < 0:
-            logger.warning(f"{value_name} number must be a non-negative integer.")
+            logger.warning(f"order_num {self.order_num} received invalid {value_name} value: {value}.")
             return self._default_int_val
         return value
