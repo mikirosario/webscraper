@@ -1,8 +1,6 @@
 from typing import List
 from src.models.models import HackerNewsEntry
 
-from typing import List
-
 def filter_by_title_length(entries: List[HackerNewsEntry], word_limit: int) -> List[HackerNewsEntry]:
     """
     Filters a list of HackerNewsEntry objects based on number of words in their titles.
@@ -17,9 +15,9 @@ def filter_by_title_length(entries: List[HackerNewsEntry], word_limit: int) -> L
     Raises:
         TypeError: If entries is not a list or word_limit is not an integer.
     """
-    # Check if entries is a list
-    if not isinstance(entries, list):
-        raise TypeError("Expected 'entries' to be a list.")
+    # Check if the input is a list of HackerNewsEntry objects
+    if not _validate_hnentry_list_type(entries):
+        raise TypeError("Expected a list of HackerNewsEntry, but got a different type.")
 
     # Check if word_limit is an integer
     if not isinstance(word_limit, int):
@@ -45,21 +43,41 @@ def sort_by_comments(entries: List[HackerNewsEntry]) -> List[HackerNewsEntry]:
     Raises:
         TypeError: If the input is not a list or if any element in the list is not an instance of HackerNewsEntry.
     """
-    # Check if the input is a list
-    if not isinstance(entries, list):
+    # Check if the input is a list of HackerNewsEntry objects
+    if not _validate_hnentry_list_type(entries):
         raise TypeError("Expected a list of HackerNewsEntry, but got a different type.")
-
-    # Check if all elements in the list are instances of HackerNewsEntry
-    for entry in entries:
-        if not isinstance(entry, HackerNewsEntry):
-            raise TypeError("All elements in the list should be instances of HackerNewsEntry.")
-
     # Sort the list based on the comment_count attribute in descending order
     sorted_entries = sorted(entries, key=lambda x: x.comment_count, reverse=True)
 
     return sorted_entries
 
-def sort_by_points(entries):
-    {
-    # ...
-    }
+def sort_by_points(entries: List[HackerNewsEntry]) -> List[HackerNewsEntry]:
+    """
+    Sorts a list of HackerNewsEntry objects by their points in descending order.
+
+    Args:
+        entries (List[HackerNewsEntry]): A list of HackerNewsEntry objects.
+
+    Returns:
+        List[HackerNewsEntry]: A list of HackerNewsEntry objects sorted by points in descending order.
+    """
+    # Check if the input is a list of HackerNewsEntry objects
+    if not _validate_hnentry_list_type(entries):
+        raise TypeError("Expected a list of HackerNewsEntry, but got a different type.")
+
+    return sorted(entries, key=lambda x: x.points, reverse=True)
+
+def _validate_hnentry_list_type(entries: any) -> bool:
+    """
+    Validate if the given variable 'entries' is a list of HackerNewsEntry objects.
+
+    Args:
+        entries (Any): The variable to validate.
+
+    Returns:
+        bool: True if entries is a list of HackerNewsEntry objects, False otherwise.
+    """
+    if not isinstance(entries, list):
+        return False
+
+    return all(isinstance(entry, HackerNewsEntry) for entry in entries)
