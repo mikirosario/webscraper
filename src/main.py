@@ -1,4 +1,4 @@
-from utils.scraper import fetch_hn_entries
+from src.utils.scraper import fetch_hn_entries
 
 def main():
     hn_entries = fetch_hn_entries(30)
