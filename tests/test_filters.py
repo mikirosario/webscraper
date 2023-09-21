@@ -1,6 +1,7 @@
 import pytest
 from src.utils.filters import *
 from src.models.models import HackerNewsEntry
+from tests.utils import validate_hnentry_list_type
 
 def test_filter_by_title_length_with_mixed_list():
     """
@@ -19,7 +20,7 @@ def test_filter_by_title_length_with_mixed_list():
 
     # Assert
         # Check that filtered_entries is a list of HackerNewsEntry objects
-    assert _validate_hnentry_list_type(filtered_entries), "Expected a list of HackerNewsEntry objects."
+    assert validate_hnentry_list_type(filtered_entries), "Expected a list of HackerNewsEntry objects."
         # Check that each HackerNewsEntry in the list has a title with more than 5 words
     for entry in filtered_entries:
         assert len(entry.title.split()) > 5, f"Title '{entry.title}' does not exceed 5 words."
@@ -124,7 +125,7 @@ def test_sort_by_comments_basic():
 
     # Assert
         # Check that sorted_entries is a list of HackerNewsEntry objects
-    assert _validate_hnentry_list_type(sorted_entries), "Expected a list of HackerNewsEntry objects."
+    assert validate_hnentry_list_type(sorted_entries), "Expected a list of HackerNewsEntry objects."
     assert [entry.comment_count for entry in sorted_entries] == expected_comment_count_order
 
 def test_sort_by_comments_empty_list():
@@ -191,7 +192,7 @@ def test_sort_by_points_basic():
 
     # Assert
         # Check that sorted_entries is a list of HackerNewsEntry objects
-    assert _validate_hnentry_list_type(sorted_entries), "Expected a list of HackerNewsEntry objects."
+    assert validate_hnentry_list_type(sorted_entries), "Expected a list of HackerNewsEntry objects."
         # Check that each entry's comment_count matches the expected order
     assert [entry.points for entry in sorted_entries] == expected_points_order
 
@@ -240,18 +241,3 @@ def test_sort_by_points_invalid_input():
         sort_by_points(entries_not_list)
     with pytest.raises(TypeError):
         sort_by_points(entries_list_strs)
-
-# Auxiliary Functions
-def _validate_hnentry_list_type(entries: any) -> bool:
-    """
-    Validate if the given variable 'entries' is a list of HackerNewsEntry objects.
-
-    Args:
-        entries (Any): The variable to validate.
-
-    Returns:
-        bool: True if entries is a list of HackerNewsEntry objects, False otherwise.
-    """
-    if not isinstance(entries, list):
-        return False
-    return all(isinstance(entry, HackerNewsEntry) for entry in entries)
