@@ -61,9 +61,71 @@ class HackerNewsScraper:
             self.entries.append(entry)
         self.last_fetch_time = datetime.datetime.now()
 
-    def apply_filters(self, some_filter_criteria):
-        # Apply filters to self.entries based on the criteria
-        self.entries = [entry for entry in self.entries if ...]
+    def filter_by_title_length(self, word_limit: int) -> None:
+        """
+        Filters entries based on number of words in their titles.
+
+        Args:
+            word_limit (int): The number of words a title should exceed for the entry to be included in the result.
+
+        Raises:
+            TypeError: If entries is not a list or word_limit is not an integer.
+        """
+        # Check if the input is a list of HackerNewsEntry objects
+        if not self._validate_hnentry_list_type(self.entries):
+            raise TypeError("Expected a list of HackerNewsEntry, but got a different type.")
+
+        # Check if word_limit is an integer
+        if not isinstance(word_limit, int):
+            raise TypeError("Expected 'word_limit' to be an integer.")
+
+        # If word_limit is less than or equal to zero, return an empty list
+        if word_limit <= 0:
+            self.entries = []
+        # Filter entries based on title length
+        self.entries = [entry for entry in self.entries if len(entry.title.split()) > word_limit]
+
+    def sort_by_comments(self) -> None:
+        """
+        Sorts entries based on their comment_count attribute in descending order.
+
+        Args:
+            None.
+
+        Raises:
+            TypeError: If the input is not a list or if any element in the list is not an instance of HackerNewsEntry.
+        """
+        # Check if the input is a list of HackerNewsEntry objects
+        if not self._validate_hnentry_list_type(self.entries):
+            raise TypeError("Expected a list of HackerNewsEntry, but got a different type.")
+        # Sort the entries based on the comment_count attribute in descending order
+        self.entries = sorted(self.entries, key=lambda x: x.comment_count, reverse=True)
+
+    def sort_by_points(self) -> None:
+        """
+        Sorts entries by their points in descending order.
+        """
+        # Check if the input is a list of HackerNewsEntry objects
+        if not self._validate_hnentry_list_type(self.entries):
+            raise TypeError("Expected a list of HackerNewsEntry, but got a different type.")
+        # Sort the entries based on points attribute in descending order
+        self.entries = sorted(self.entries, key=lambda x: x.points, reverse=True)
+
+    @staticmethod
+    def _validate_hnentry_list_type(entries: any) -> bool:
+        """
+        Validate if the given variable 'entries' is a list of HackerNewsEntry objects.
+
+        Args:
+            entries (Any): The variable to validate.
+
+        Returns:
+            bool: True if entries is a list of HackerNewsEntry objects, False otherwise.
+        """
+        if not isinstance(entries, list):
+            return False
+
+        return all(isinstance(entry, HackerNewsEntry) for entry in entries)
     
     @staticmethod
     def _extract_numeric_chars(s: str) -> str:
