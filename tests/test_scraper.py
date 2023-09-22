@@ -1,9 +1,9 @@
 import os
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 from pathlib import Path
-from src.utils.scraper import *
 from tests.constants import *
 from tests.utils import validate_hnentry_list_type
+from src.models.hn_scraper import HackerNewsScraper
 
 current_file_dir = Path(os.path.dirname(os.path.abspath(__file__)))
 mock_file_path = current_file_dir / MOCK_HTML_FILE_RELATIVE_PATH
@@ -32,11 +32,14 @@ def test_fetch_hn_entries():
     expected_num_entries = MOCK_HTML_HN_ENTRIES_NUM_TO_FETCH
     
     # Mock HTTP request
-    with patch('requests.get') as mock_get:
-        mock_get.return_value.content = mock_html_content
-
+    mock_response = Mock()
+    mock_response.content = mock_html_content
+    mock_response.raise_for_status.return_value = None
+    with patch('src.models.hn_scraper.requests.get', return_value=mock_response):
         # Act
-        entries = fetch_hn_entries(expected_num_entries)
+        HackerNewsScraper._instance = None
+        scraper = HackerNewsScraper(max_entries=expected_num_entries)
+        entries = scraper.entries
 
     # Assert
     assert validate_hnentry_list_type(entries), "Expected a list of HackerNewsEntry objects."

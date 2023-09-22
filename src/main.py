@@ -1,8 +1,8 @@
-from src.utils.scraper import fetch_hn_entries
+from src.models.hn_scraper import HackerNewsScraper
 
 def main():
-    hn_entries = fetch_hn_entries(30)
-    for hn_entry in hn_entries:
+    scraper = HackerNewsScraper(30)
+    for hn_entry in scraper.entries:
         print(hn_entry)
     # apply filters and display results
 
