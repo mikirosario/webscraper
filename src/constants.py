@@ -6,6 +6,9 @@ HN_HTTP_REQUEST_HEADER = {
 # URL for the YCombinator news page
 HN_URL = "https://news.ycombinator.com/news"
 
+# Delay between fetch requests in seconds
+HN_FETCH_DELAY = 30
+
 # HTML tag and class where each entry begins
 HN_ENTRY_START_TAG = 'tr'
 HN_ENTRY_START_CLASS = 'athing'
@@ -28,8 +31,8 @@ HN_POINTS_TAG = 'span'
 # HTML class where the points can be found within the tag
 HN_POINTS_CLASS = 'score'
 
-# Number of entries to fetch from Hacker News
-NUM_HN_ENTRIES = 30
+# Maximum umber of entries to fetch from Hacker News
+HN_MAX_ENTRIES = 30
 
 # Log file name
 LOG_FILE_NAME = 'log.log'
