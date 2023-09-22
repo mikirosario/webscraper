@@ -1,16 +1,7 @@
-import os
 from unittest.mock import patch, Mock
-from pathlib import Path
 from tests.constants import *
-from tests.utils import validate_hnentry_list_type
+from tests.utils import *
 from src.models.hn_scraper import HackerNewsScraper
-
-current_file_dir = Path(os.path.dirname(os.path.abspath(__file__)))
-mock_file_path = current_file_dir / MOCK_HTML_FILE_RELATIVE_PATH
-
-def _get_mocked_hn_html() -> str:
-    with open(mock_file_path, "r", encoding="utf-8") as file:
-        return file.read()
 
 def test_fetch_hn_entries():
     """
@@ -28,7 +19,7 @@ def test_fetch_hn_entries():
     If the structure of the YCombinator news page changes, this test may fail and the sample HTML (and possibly the scraper logic) will need to be updated.
     """
     # Arrange
-    mock_html_content = _get_mocked_hn_html()
+    mock_html_content = get_mocked_hn_html()
     expected_num_entries = MOCK_HTML_HN_ENTRIES_NUM_TO_FETCH
     
     # Mock HTTP request
