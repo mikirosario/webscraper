@@ -56,6 +56,6 @@ def test_fetch_hn_entries_http_error():
         try:
             # Act
             HackerNewsScraper(max_entries=expected_num_entries)
-        # Assert
+            # Assert
         except HTTPError:
             pytest.fail("The method did not handle the HTTPError.")

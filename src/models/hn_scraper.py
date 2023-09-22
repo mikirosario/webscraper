@@ -1,6 +1,6 @@
 import requests
 import datetime
-from typing import List
+from requests.exceptions import HTTPError
 from bs4 import BeautifulSoup
 from src.constants import *
 from src.models.hn_entry import HackerNewsEntry
@@ -17,6 +17,7 @@ class HackerNewsScraper:
         return cls._instance
 
     def __init__(self, max_entries: int = HN_MAX_ENTRIES):
+        self.fetch_error: bool = False
         self.last_fetch_time = datetime.datetime.min
         self.fetch_hn_entries(max_entries)
 
@@ -37,8 +38,17 @@ class HackerNewsScraper:
         #     return None
 
         # Fetch the HTML content
-        response = requests.get(HN_URL, HN_HTTP_REQUEST_HEADER)
-        response.raise_for_status()  # Raise an exception for HTTP errors
+        # Handle HTTP errors
+        try:
+            response = requests.get(HN_URL, HN_HTTP_REQUEST_HEADER)
+            response.raise_for_status()
+        except HTTPError as e:
+            logger.error(f"Failed to fetch HackerNews entries. HTTP Error: {e}")
+            self.fetch_error = True
+            self.entries = []
+            return
+        else:
+            self.fetch_error = False
 
         # Parse the HTML content using BeautifulSoup
         soup = BeautifulSoup(response.content, 'html.parser')
