@@ -61,29 +61,55 @@ class HackerNewsScraper:
             self.entries.append(entry)
         self.last_fetch_time = datetime.datetime.now()
 
-    def filter_by_title_length(self, word_limit: int) -> None:
+    def filter_by_min_title_length(self, min_words: int) -> None:
         """
         Filters entries based on number of words in their titles.
 
         Args:
-            word_limit (int): The number of words a title should exceed for the entry to be included in the result.
+            min_words (int): The number of words a title should exceed for the entry to be included in the result.
 
         Raises:
-            TypeError: If entries is not a list or word_limit is not an integer.
+            TypeError: If entries is not a list or min_words is not an integer.
         """
         # Check if the input is a list of HackerNewsEntry objects
         if not self._validate_hnentry_list_type(self.entries):
             raise TypeError("Expected a list of HackerNewsEntry, but got a different type.")
 
-        # Check if word_limit is an integer
-        if not isinstance(word_limit, int):
-            raise TypeError("Expected 'word_limit' to be an integer.")
+        # Check if min_words is an integer
+        if not isinstance(min_words, int):
+            raise TypeError("Expected 'min_words' to be an integer.")
 
-        # If word_limit is less than or equal to zero, return an empty list
-        if word_limit <= 0:
+        # If min_words is less than or equal to zero, set an empty list
+        if min_words <= 0:
             self.entries = []
         # Filter entries based on title length
-        self.entries = [entry for entry in self.entries if len(entry.title.split()) > word_limit]
+        self.entries = [entry for entry in self.entries if len(entry.title.split()) > min_words]
+    
+    def filter_by_max_title_length(self, max_words: int) -> None:
+        """
+        Filters entries based on the maximum number of words in their titles.
+
+        Args:
+            max_words (int): The maximum number of words a title should have for the entry to be included in the result.
+
+        Raises:
+            TypeError: If entries is not a list or max_words is not an integer.
+            ValueError: If max_words is less than 0.
+        """
+        # Check if the input is a list of HackerNewsEntry objects
+        if not self._validate_hnentry_list_type(self.entries):
+            raise TypeError("Expected a list of HackerNewsEntry, but got a different type.")
+
+        # Check if max_words is an integer
+        if not isinstance(max_words, int):
+            raise TypeError("Expected 'max_words' to be an integer.")
+
+        # If max_words is less than or equal to zero, set an empty list
+        if max_words <= 0:
+            self.entries = []
+
+        # Filter entries based on title length
+        self.entries = [entry for entry in self.entries if len(entry.title.split()) <= max_words]
 
     def sort_by_comments(self) -> None:
         """
