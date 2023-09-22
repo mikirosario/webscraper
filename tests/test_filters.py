@@ -136,6 +136,128 @@ def test_filter_by_title_length_with_word_limit_neg_number():
     # Assert
     assert scraper.entries == [], "Expected an empty list for word_limit of less than 0."
 
+def test_filter_by_max_title_length_with_mixed_list():
+    """
+    Test filter_by_max_title_length with a valid list of entries with titles longer and shorter than the word limit.
+    The function should return a list of entries with titles shorter than or equal to the word limit.
+    """
+
+    # Arrange
+    scraper.entries = [
+        HackerNewsEntry("Short title", 1, 10, 100),
+        HackerNewsEntry("This is a much longer title than the previous one", 2, 20, 200),
+        HackerNewsEntry("Another short title", 3, 30, 300),
+        HackerNewsEntry("Yet another very long title that exceeds the five-word limit", 4, 40, 400),
+        HackerNewsEntry("Word count equals limit here", 5, 50, 500)
+    ]
+    # Act
+    scraper.filter_by_max_title_length(5)
+
+    # Assert
+    # Check that filtered_entries is a list of HackerNewsEntry objects
+    assert validate_hnentry_list_type(scraper.entries), "Expected a list of HackerNewsEntry objects."
+    # Check that each HackerNewsEntry in the list has a title with 5 or fewer words
+    for entry in scraper.entries:
+        assert len(entry.title.split()) <= 5, f"Title '{entry.title}' exceeds 5 words."
+    # Check that 3 entries are returned
+    assert len(scraper.entries) == 3, f"Expected 3 entries, but got {len(scraper.entries)}"
+
+def test_filter_by_max_title_length_with_empty_list():
+    """
+    Test filter_by_max_title_length with an empty list.
+    The function should return an empty list.
+    """
+    # Arrange
+    scraper.entries = []
+
+    # Act
+    scraper.filter_by_max_title_length(5)
+
+    # Assert
+    assert scraper.entries == [], "Expected an empty list when input is empty."
+
+def test_filter_by_max_title_length_with_all_long_titles():
+    """
+    Test filter_by_title_length with a valid list of entries with titles longer than the word limit.
+    The function should return an empty list.
+    """
+
+    # Arrange
+    scraper.entries = [
+        HackerNewsEntry("Title with word count exceeding limit", 1, 10, 100),
+        HackerNewsEntry("Another title that is longer than the limit", 3, 30, 300),
+        ]
+    
+    # Act
+    scraper.filter_by_max_title_length(5)
+
+    # Assert
+    assert scraper.entries == [], "Expected an empty list when all titles are short."
+
+def test_filter_by_max_title_length_with_invalid_entries_type():
+    """
+    Test filter_by_max_title_length when passing in an invalid entries type.
+    The function should raise a type error exception.
+    """
+    # Arrange
+    scraper.entries = "not a list"
+
+    # Act and Assert
+    with pytest.raises(TypeError):
+        scraper.filter_by_max_title_length(5)
+
+def test_filter_by_max_title_length_with_invalid_word_limit_type():
+    """
+    Test filter_by_max_title_length when passing in an invalid word limit type.
+    The function should raise a type error exception.
+    """
+
+    # Arrange
+    scraper.entries = [
+    HackerNewsEntry("Short title", 1, 10, 100),
+    HackerNewsEntry("Another short title", 3, 30, 300),
+    ]
+
+    # Act and Assert
+    with pytest.raises(TypeError):
+        scraper.filter_by_max_title_length("not an int")
+
+def test_filter_by_max_title_length_with_word_limit_zero():
+    """
+    Test filter_by_max_title_length when passing in a word limit of zero.
+    The result should always be an empty list regardless of the input entries.
+    """
+    
+    # Arrange
+    scraper.entries = [
+        HackerNewsEntry("Some title", 1, 10, 100),
+        HackerNewsEntry("This is a much longer title than the previous one", 2, 20, 200),
+        ]
+    
+    # Act
+    scraper.filter_by_max_title_length(0)
+
+    # Assert
+    assert scraper.entries == [], "Expected an empty list for word_limit of 0."
+
+def test_filter_by_max_title_length_with_word_limit_neg_number():
+    """
+    Test filter_by_max_title_length when passing in a word limit less than one.
+    The result should always be an empty list regardless of the input entries.
+    """
+    
+    # Arrange
+    scraper.entries = [
+        HackerNewsEntry("Some title", 1, 10, 100),
+        HackerNewsEntry("This is a much longer title than the previous one", 2, 20, 200),
+        ]
+    
+    # Act
+    scraper.filter_by_max_title_length(-5)
+
+    # Assert
+    assert scraper.entries == [], "Expected an empty list for word_limit of less than 0."
+
 def test_sort_by_comments_basic():
     """
     Test sort_by_comments with a valid list of entries.
