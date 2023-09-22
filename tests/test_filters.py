@@ -1,7 +1,20 @@
 import pytest
-from src.utils.filters import *
+from unittest.mock import patch, Mock
 from src.models.hn_entry import HackerNewsEntry
-from tests.utils import validate_hnentry_list_type
+from src.models.hn_scraper import HackerNewsScraper
+from tests.constants import MOCK_HTML_HN_ENTRIES_NUM_TO_FETCH
+from tests.utils import *
+
+# Mock HTTP request
+mock_html_content = get_mocked_hn_html()
+expected_num_entries = MOCK_HTML_HN_ENTRIES_NUM_TO_FETCH
+mock_response = Mock()
+mock_response.content = mock_html_content
+mock_response.raise_for_status.return_value = None
+with patch('src.models.hn_scraper.requests.get', return_value=mock_response):
+    # Act
+    HackerNewsScraper._instance = None
+    scraper = HackerNewsScraper(max_entries=expected_num_entries)
 
 def test_filter_by_title_length_with_mixed_list():
     """
@@ -9,23 +22,23 @@ def test_filter_by_title_length_with_mixed_list():
     The function should return a list of entries with titles longer than the word limit.
     """
     # Arrange
-    entries = [
+    scraper.entries = [
     HackerNewsEntry("Short title", 1, 10, 100),
     HackerNewsEntry("This is a much longer title than the previous one", 2, 20, 200),
     HackerNewsEntry("Another short title", 3, 30, 300),
     HackerNewsEntry("Yet another very long title that exceeds the five-word limit", 4, 40, 400),
     ]
     # Act
-    filtered_entries = filter_by_title_length(entries, 5)
+    scraper.filter_by_title_length(5)
 
     # Assert
         # Check that filtered_entries is a list of HackerNewsEntry objects
-    assert validate_hnentry_list_type(filtered_entries), "Expected a list of HackerNewsEntry objects."
+    assert validate_hnentry_list_type(scraper.entries), "Expected a list of HackerNewsEntry objects."
         # Check that each HackerNewsEntry in the list has a title with more than 5 words
-    for entry in filtered_entries:
+    for entry in scraper.entries:
         assert len(entry.title.split()) > 5, f"Title '{entry.title}' does not exceed 5 words."
         # Check that 2 entries are returned
-    assert len(filtered_entries) == 2, f"Expected 2 entries, but got {len(filtered_entries)}"
+    assert len(scraper.entries) == 2, f"Expected 2 entries, but got {len(scraper.entries)}"
 
 def test_filter_by_title_length_with_empty_list():
     """
@@ -33,13 +46,13 @@ def test_filter_by_title_length_with_empty_list():
     The function should return an empty list.
     """
     # Arrange
-    entries = []
+    scraper.entries = []
 
     # Act
-    filtered_entries = filter_by_title_length(entries, 5)
+    scraper.filter_by_title_length(5)
 
     # Assert
-    assert filtered_entries == [], "Expected an empty list when input is empty."
+    assert scraper.entries == [], "Expected an empty list when input is empty."
 
 def test_filter_by_title_length_with_all_short_titles():
     """
@@ -48,16 +61,16 @@ def test_filter_by_title_length_with_all_short_titles():
     """
 
     # Arrange
-    short_entries = [
+    scraper.entries = [
         HackerNewsEntry("Short title", 1, 10, 100),
         HackerNewsEntry("Another short title", 3, 30, 300),
         ]
     
     # Act
-    filtered_entries = filter_by_title_length(short_entries, 5)
+    scraper.filter_by_title_length(5)
 
     # Assert
-    assert filtered_entries == [], "Expected an empty list when all titles are short."
+    assert scraper.entries == [], "Expected an empty list when all titles are short."
 
 def test_filter_by_title_length_with_invalid_entries_type():
     """
@@ -65,11 +78,11 @@ def test_filter_by_title_length_with_invalid_entries_type():
     The function should raise a type error exception.
     """
     # Arrange
-    entries = "not a list"
+    scraper.entries = "not a list"
 
     # Act and Assert
     with pytest.raises(TypeError):
-        filter_by_title_length(entries, 5)
+        scraper.filter_by_title_length(5)
 
 def test_filter_by_title_length_with_invalid_word_limit_type():
     """
@@ -78,34 +91,50 @@ def test_filter_by_title_length_with_invalid_word_limit_type():
     """
 
     # Arrange
-    entries = [
+    scraper.entries = [
     HackerNewsEntry("Short title", 1, 10, 100),
     HackerNewsEntry("Another short title", 3, 30, 300),
     ]
 
     # Act and Assert
     with pytest.raises(TypeError):
-        filter_by_title_length(entries, "not an int")
+        scraper.filter_by_title_length("not an int")
 
-def test_filter_by_title_length_with_word_limit_less_than_one():
+def test_filter_by_title_length_with_word_limit_zero():
+    """
+    Test filter_by_title_length when passing in a word limit of zero.
+    The result should always be an empty list regardless of the input entries.
+    """
+    
+    # Arrange
+    scraper.entries = [
+        HackerNewsEntry("Some title", 1, 10, 100),
+        HackerNewsEntry("This is a much longer title than the previous one", 2, 20, 200),
+        ]
+    
+    # Act
+    scraper.filter_by_title_length(0)
+
+    # Assert
+    assert scraper.entries == [], "Expected an empty list for word_limit of 0."
+
+def test_filter_by_title_length_with_word_limit_neg_number():
     """
     Test filter_by_title_length when passing in a word limit less than one.
     The result should always be an empty list regardless of the input entries.
     """
     
     # Arrange
-    entries = [
+    scraper.entries = [
         HackerNewsEntry("Some title", 1, 10, 100),
         HackerNewsEntry("This is a much longer title than the previous one", 2, 20, 200),
         ]
     
     # Act
-    filtered_entries_zero = filter_by_title_length(entries, 0)
-    filtered_entries_neg = filter_by_title_length(entries, -5)
+    scraper.filter_by_title_length(-5)
 
     # Assert
-    assert filtered_entries_zero == [], "Expected an empty list for word_limit of 0."
-    assert filtered_entries_neg == [], "Expected an empty list for negative word_limit."
+    assert scraper.entries == [], "Expected an empty list for word_limit of less than 0."
 
 def test_sort_by_comments_basic():
     """
@@ -113,7 +142,7 @@ def test_sort_by_comments_basic():
     The function should return a list sorted by the number of comments in descending order.
     """
     # Arrange
-    entries = [
+    scraper.entries = [
         HackerNewsEntry("Title A", 1, 10, 100),
         HackerNewsEntry("Title B", 2, 50, 200),
         HackerNewsEntry("Title C", 3, 30, 300),
@@ -121,12 +150,12 @@ def test_sort_by_comments_basic():
     expected_comment_count_order = [50, 30, 10]
     
     # Act
-    sorted_entries = sort_by_comments(entries)
+    scraper.sort_by_comments()
 
     # Assert
         # Check that sorted_entries is a list of HackerNewsEntry objects
-    assert validate_hnentry_list_type(sorted_entries), "Expected a list of HackerNewsEntry objects."
-    assert [entry.comment_count for entry in sorted_entries] == expected_comment_count_order
+    assert validate_hnentry_list_type(scraper.entries), "Expected a list of HackerNewsEntry objects."
+    assert [entry.comment_count for entry in scraper.entries] == expected_comment_count_order
 
 def test_sort_by_comments_empty_list():
     """
@@ -134,13 +163,13 @@ def test_sort_by_comments_empty_list():
     The function should return an empty list.
     """
     # Arrange
-    entries = []
+    scraper.entries = []
 
     # Act
-    sorted_entries = sort_by_comments(entries)
+    scraper.sort_by_comments()
 
     # Assert
-    assert sorted_entries == []
+    assert scraper.entries == []
 
 def test_sort_by_comments_tiebreaker():
     """
@@ -148,16 +177,16 @@ def test_sort_by_comments_tiebreaker():
     The function should maintain the original order of the entries (stable sort).
     """
     # Arrange
-    entries = [
+    scraper.entries = [
         HackerNewsEntry("Title A", 1, 10, 100),
         HackerNewsEntry("Title B", 2, 10, 200),
     ]
     
     # Act
-    sorted_entries = sort_by_comments(entries)
+    scraper.sort_by_comments()
 
     # Assert
-    assert [entry.title for entry in sorted_entries] == ["Title A", "Title B"]
+    assert [entry.title for entry in scraper.entries] == ["Title A", "Title B"]
 
 def test_sort_by_comments_invalid_input():
     """
@@ -165,14 +194,18 @@ def test_sort_by_comments_invalid_input():
     The function should raise a TypeError.
     """
     # Arrange
-    entries_not_list = "not a list of HackerNewsEntry"
-    entries_list_strs = ["not a HackerNewsEntry", "also not a HackerNewsEntry"]
+    scraper.entries = "not a list of HackerNewsEntry"
 
     # Act and Assert
     with pytest.raises(TypeError):
-        sort_by_comments(entries_not_list)
+        scraper.sort_by_comments()
+    
+    # Arrange
+    scraper.entries = ["not a HackerNewsEntry", "also not a HackerNewsEntry"]
+
+    # Act and Assert
     with pytest.raises(TypeError):
-        sort_by_comments(entries_list_strs)
+        scraper.sort_by_comments()
 
 def test_sort_by_points_basic():
     """
@@ -180,7 +213,7 @@ def test_sort_by_points_basic():
     The function should return a list sorted by the number of points in descending order.
     """
     # Arrange
-    entries = [
+    scraper.entries = [
         HackerNewsEntry("Title A", 1, 10, 100),
         HackerNewsEntry("Title B", 2, 20, 300),
         HackerNewsEntry("Title C", 3, 30, 200),
@@ -188,13 +221,13 @@ def test_sort_by_points_basic():
     expected_points_order = [300, 200, 100]
     
     # Act
-    sorted_entries = sort_by_points(entries)
+    scraper.sort_by_points()
 
     # Assert
         # Check that sorted_entries is a list of HackerNewsEntry objects
-    assert validate_hnentry_list_type(sorted_entries), "Expected a list of HackerNewsEntry objects."
+    assert validate_hnentry_list_type(scraper.entries), "Expected a list of HackerNewsEntry objects."
         # Check that each entry's comment_count matches the expected order
-    assert [entry.points for entry in sorted_entries] == expected_points_order
+    assert [entry.points for entry in scraper.entries] == expected_points_order
 
 def test_sort_by_points_empty_list():
     """
@@ -202,13 +235,13 @@ def test_sort_by_points_empty_list():
     The function should return an empty list.
     """
     # Arrange
-    entries = []
+    scraper.entries = []
 
     # Act
-    sorted_entries = sort_by_points(entries)
+    scraper.sort_by_points()
 
     # Assert
-    assert sorted_entries == []
+    assert scraper.entries == []
 
 def test_sort_by_points_tiebreaker():
     """
@@ -216,16 +249,16 @@ def test_sort_by_points_tiebreaker():
     The function should maintain the original order of the entries (stable sort).
     """
     # Arrange
-    entries = [
+    scraper.entries = [
         HackerNewsEntry("Title A", 1, 10, 100),
         HackerNewsEntry("Title B", 2, 20, 100),
     ]
     
     # Act
-    sorted_entries = sort_by_points(entries)
+    scraper.sort_by_points()
 
     # Assert
-    assert [entry.title for entry in sorted_entries] == ["Title A", "Title B"]
+    assert [entry.title for entry in scraper.entries] == ["Title A", "Title B"]
 
 def test_sort_by_points_invalid_input():
     """
@@ -233,11 +266,15 @@ def test_sort_by_points_invalid_input():
     The function should raise a TypeError.
     """
     # Arrange
-    entries_not_list = "not a list of HackerNewsEntry"
-    entries_list_strs = ["not a HackerNewsEntry", "also not a HackerNewsEntry"]
+    scraper.entries = "not a list of HackerNewsEntry"
 
     # Act and Assert
     with pytest.raises(TypeError):
-        sort_by_points(entries_not_list)
+        scraper.sort_by_points()
+
+    # Arrange
+    scraper.entries = ["not a HackerNewsEntry", "also not a HackerNewsEntry"]
+
+    # Act and Assert
     with pytest.raises(TypeError):
-        sort_by_points(entries_list_strs)
+        scraper.sort_by_points()
