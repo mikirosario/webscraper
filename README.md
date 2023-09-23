@@ -5,7 +5,7 @@ A simple webscraper written in Python using BeautifulSoup and tested in Python 3
 This webscraper extracts the first 30 entries of [Hacker News](https://news.ycombinator.com/), storing each one's title, order, number of comments, and points. It then uses utility functions to filter and sort those entries by these characteristics.
 
 A TDD approach was used for development, starting with the filters and ending with the scraper. A logger has been implemented using the logging module that outputs both to console and to a log file (if there is enough disk space). Entries are encapsulated in a `HackerNewsEntry` object, which features data validation and error handling. The scraper itself along with its filters is
-encapsulated in a `HackerNewsScraper` object.
+encapsulated in a `HackerNewsScraper` singleton. While not currently used (as only a single fetch is made), a crawl rate limiter is implemented to respect the website's crawl delay.
 
 Python's type hinting is used, as well as runtime type checking.
 
