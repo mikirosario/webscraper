@@ -31,11 +31,11 @@ class HackerNewsScraper:
         Returns:
             list[HackerNewsEntry]: A list of HackerNewsEntry objects.
         """
-        # # Check time difference
-        # time_diff = datetime.datetime.now() - self.last_fetch_time
-        # if time_diff.seconds < HN_FETCH_DELAY:
-        #     logger.warning(f"Please wait for {HN_FETCH_DELAY - time_diff.seconds} seconds before fetching again.")
-        #     return None
+        # Check time difference
+        time_diff = datetime.datetime.now() - self.last_fetch_time
+        if time_diff.seconds < HN_FETCH_DELAY:
+            logger.warning(f"Please wait for {HN_FETCH_DELAY - time_diff.seconds} seconds before fetching again.")
+            return None
 
         # Fetch the HTML content
         # Handle HTTP errors
